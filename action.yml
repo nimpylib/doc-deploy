@@ -1,0 +1,84 @@
+name: nimdoc-deploy
+description: setup nim & run nimble command(e.g. nimble doc ...) to build document & deploy to pages
+author: litlighilit
+inputs:
+  nim-version:
+    description: Nim version to install
+    default: 'stable'
+  branch:
+    description: which branch to genereate from
+    default: 'master'
+  deploy-dir:
+    description: Output directory for generated docs
+    default: '.gh-pages'
+  repo-token:
+    description: GitHub token for actions that require it
+    #default: ${{ secrets.GITHUB_TOKEN }}
+    required: false
+  homepage:
+    description: Repository homepage used for CNAME
+    default: ${{ github.event.repository.homepage }}
+  proj-name:
+    description: Nim project name used to create index.html
+    default: ${{ github.event.repository.name }}
+  nimble-doc-cmd:
+    description: cmd to generate doc, on inputs.deploy-dir
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Cache nimble
+      uses: actions/cache@v4
+      with:
+        path: ~/.nimble
+        key: ${{ runner.os }}-nimble-v2
+
+    - name: Setup Nim
+      uses: jiro4989/setup-nim-action@v2
+      with:
+        nim-version: ${{ inputs.nim-version }}
+        repo-token: ${{ inputs.repo-token }}
+
+    - name: genDoc
+      shell: bash
+      run: |
+        cmd=${{ inputs.nimble-doc-cmd }}
+        homepage="${{ inputs.homepage }}"
+        if [ -z "$homepage" ]; then
+          homepage="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+        fi
+        echo homepage="$homepage" >> $GITHUB_ENV
+        if [ -z "$cmd" ]; then
+          nimble doc --index:on --project "${{ inputs.git-url-arg }}" --outdir:${{ inputs.deploy-dir }} -d:homepage="${{ env.homepage }}" src/`echo ${{ inputs.proj-name }} | tr - _`
+        else
+          $cmd
+        fi
+
+    - name: Copy to index.html
+      shell: bash
+      run: |
+        cd "${{ inputs.deploy-dir }}"
+        index_file=${{ inputs.proj-name }}.html
+        index_file=$(echo "$index_file" | tr - _)
+        [ -f "$index_file" ] || index_file=${index_file#nim}
+        cp "$index_file" index.html
+        cd $OLDPWD
+
+    - name: Write CNAME
+      shell: bash
+      run: |
+        homepage=${{ env.homepage }}
+        cname=$(echo "$homepage" | grep -oP 'https?://\\K[^/]+' || echo $homepage)
+        echo -n "$cname" > "${{ inputs.deploy-dir }}/CNAME"
+
+    - name: Upload Artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ${{ inputs.deploy-dir }}
+
+    - name: Deploy pages
+      uses: actions/deploy-pages@v4
