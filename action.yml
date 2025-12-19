@@ -21,6 +21,9 @@ inputs:
   proj-name:
     description: Nim project name used to create index.html
     default: ${{ github.event.repository.name }}
+  src-dir:
+    description: directory to src
+    default: src
   nimble-doc-cmd:
     description: cmd to generate doc, on inputs.deploy-dir
     required: false
@@ -54,7 +57,7 @@ runs:
         echo homepage="$homepage" >> $GITHUB_ENV
         if [ -z "$cmd" ]; then
           git_url_arg="--git.url:https://github.com/${{ github.repository }} --git.commit:${{ inputs.branch }}"
-          nimble doc --index:on --project $git_url_arg --outdir:${{ inputs.deploy-dir }} -d:homepage="$homepage" src/`echo ${{ inputs.proj-name }} | tr - _`
+          nimble doc --index:on --project $git_url_arg --outdir:${{ inputs.deploy-dir }} -d:homepage="$homepage" ${{ inputs.src-dir }}/`echo ${{ inputs.proj-name }} | tr - _`
         else
           $cmd
         fi
