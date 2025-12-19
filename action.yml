@@ -53,7 +53,8 @@ runs:
         fi
         echo homepage="$homepage" >> $GITHUB_ENV
         if [ -z "$cmd" ]; then
-          nimble doc --index:on --project "${{ inputs.git-url-arg }}" --outdir:${{ inputs.deploy-dir }} -d:homepage="${{ env.homepage }}" src/`echo ${{ inputs.proj-name }} | tr - _`
+          git_url_arg="--git.url:https://github.com/${{ github.repository }} --git.commit:${{ inputs.branch }}"
+          nimble doc --index:on --project $git_url_arg --outdir:${{ inputs.deploy-dir }} -d:homepage="${{ env.homepage }}" src/`echo ${{ inputs.proj-name }} | tr - _`
         else
           $cmd
         fi
