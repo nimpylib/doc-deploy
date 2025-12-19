@@ -54,7 +54,7 @@ runs:
         echo homepage="$homepage" >> $GITHUB_ENV
         if [ -z "$cmd" ]; then
           git_url_arg="--git.url:https://github.com/${{ github.repository }} --git.commit:${{ inputs.branch }}"
-          nimble doc --index:on --project $git_url_arg --outdir:${{ inputs.deploy-dir }} -d:homepage="${{ env.homepage }}" src/`echo ${{ inputs.proj-name }} | tr - _`
+          nimble doc --index:on --project $git_url_arg --outdir:${{ inputs.deploy-dir }} -d:homepage="$homepage" src/`echo ${{ inputs.proj-name }} | tr - _`
         else
           $cmd
         fi
@@ -73,7 +73,8 @@ runs:
       shell: bash
       run: |
         homepage=${{ env.homepage }}
-        cname=$(echo "$homepage" | grep -oP 'https?://\\K[^/]+' || echo $homepage)
+        cname=$(echo "$homepage" | grep -oP 'https?://\K[^/]+' || echo $homepage)
+        echo "CNAME: $cname"
         echo -n "$cname" > "${{ inputs.deploy-dir }}/CNAME"
 
     - name: Upload Artifact
