@@ -5,14 +5,15 @@ A GitHub Action to set up Nim and run a nimble command (e.g. `nimble doc`) to bu
 ## Features
 - Installs Nim (configurable version)
 - Caches `~/.nimble`
-- Runs a doc generation command (default: `nimble doc` with sensible flags)
+- Runs a doc generation command (default: `nimble doc` with sensible flags and arguments)
 - Copies generated project HTML to `index.html`
 - Writes a `CNAME` from the configured homepage
 - Uploads and deploys the generated site using Pages
 
 ## Requirement
 
-- `runs-on` non-windows
+- in Github of your repo, remember to switch `Settings` - `Pages` -
+  `Source` to `"Github Action"` (whose default is `"Deploy from a branch"`)
 - permissions:
 
 ```yaml
@@ -29,6 +30,7 @@ A GitHub Action to set up Nim and run a nimble command (e.g. `nimble doc`) to bu
 - `deploy-dir` (string) — Output directory for generated docs (default: `.gh-pages`).
 - `repo-token` (string) — GitHub token for actions that require it.
 - `homepage` (string) — Repository homepage used for CNAME (defaults to repository homepage).
+- `src-dir` (string) — the directory where your `proj-name` stays (default: `src`).
 - `proj-name` (string) — Nim project name used to create `index.html` (defaults to repository name).
 - `nimble-doc-cmd` (string) — Command to generate docs; if omitted the action runs a default `nimble doc` invocation.
 
