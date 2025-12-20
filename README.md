@@ -10,7 +10,7 @@ A GitHub Action to set up Nim and run a nimble command (e.g. `nimble doc`) to bu
 - Writes a `CNAME` from the configured homepage
 - Uploads and deploys the generated site using Pages
 
-## Requirement
+## Requirements
 
 - in Github of your repo, remember to switch `Settings` - `Pages` -
   `Source` to `"Github Action"` (whose default is `"Deploy from a branch"`)
@@ -65,4 +65,30 @@ jobs:
 
 
 ```
+
+## FAQ
+
+### Missing an environment? 400 HttpError
+
+#### Q
+> My CI failed just before finishing, with 400 HttpError of messages:
+
+```plain
+Error: Creating Pages deployment failed
+Error: HttpError: Missing environment. Ensure your workflow's deployment job has an environment. Example:
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+```
+
+and
+
+```plain
+Error: Error: Failed to create deployment (status: 400) with build version xxx. Request ID xxxx Responded with: Missing environment. Ensure your workflow's deployment job has an environment. Example:
+```
+
+#### A
+Do not get confused! Probably just because you don't
+switch the [the setting decribed above](#Requirements) properly.
 
