@@ -1,6 +1,9 @@
 name: nimdoc-deploy
 description: setup nim & run nimble command(e.g. nimble doc ...) to build document & deploy to pages
 author: litlighilit
+branding:
+  color: yellow
+  icon: codepen
 inputs:
   nim-version:
     description: Nim version to install
