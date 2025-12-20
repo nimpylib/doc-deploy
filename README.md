@@ -32,7 +32,8 @@ A GitHub Action to set up Nim and run a nimble command (e.g. `nimble doc`) to bu
 - `homepage` (string) — Repository homepage used for CNAME (defaults to repository homepage).
 - `src-dir` (string) — the directory where your `proj-name` stays (default: `src`).
 - `proj-name` (string) — Nim project name used to create `index.html` (defaults to repository name).
-- `nimble-doc-cmd` (string) — Command to generate docs; if omitted the action runs a default `nimble doc` invocation.
+- `nimble-doc-cmd` (string) — Command to generate docs. Use `|`-string if wanting multi-command;
+  if omitted the action runs a default `nimble doc` invocation.
 
 ## Example workflow
 
@@ -51,14 +52,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Deploy docs
-        uses: nimpylib/doc-deploy
+        # please replace `master` below with version like v0.1.3 if
+        #  you wanna stable behavior
+        uses: nimpylib/doc-deploy@master
         with:
           nim-version: 'stable'
           branch: 'main'
           deploy-dir: '.gh-pages'
           proj-name: myproject
-          # optional: override the default doc command
-          # nimble-doc-cmd: 'nimble doc --index:on --project --outdir:.gh-pages src/myproject'
+          # To override the default doc command:
+          # nimble-doc-cmd: 'nimble doc --index:on --project --outdir:.gh-pages src/${{ inputs.proj-name }}'
 
 
 ```
