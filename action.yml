@@ -49,7 +49,10 @@ runs:
     - name: genDoc
       shell: bash
       run: |
-        cmd=${{ inputs.nimble-doc-cmd }}
+        cmd=$(cat << actioncmdEOF
+        ${{ inputs.nimble-doc-cmd }}
+        actioncmdEOF
+        )
         homepage="${{ inputs.homepage }}"
         if [ -z "$homepage" ]; then
           homepage="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
@@ -59,7 +62,7 @@ runs:
           git_url_arg="--git.url:https://github.com/${{ github.repository }} --git.commit:${{ inputs.branch }}"
           nimble doc --index:on --project $git_url_arg --outdir:${{ inputs.deploy-dir }} -d:homepage="$homepage" ${{ inputs.src-dir }}/`echo ${{ inputs.proj-name }} | tr - _`
         else
-          $cmd
+          eval "$cmd"
         fi
 
     - name: Copy to index.html
