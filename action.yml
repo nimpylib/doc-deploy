@@ -30,6 +30,9 @@ inputs:
   nimble-doc-cmd:
     description: cmd to generate doc, on inputs.deploy-dir
     required: false
+  gen-index:
+    description: if cp `proj-name`'s doc page as index.html
+    default: 'true'
 
 runs:
   using: composite
@@ -52,23 +55,27 @@ runs:
     - name: genDoc
       shell: bash
       run: |
-        cmd=$(cat << actioncmdEOF
-        ${{ inputs.nimble-doc-cmd }}
-        actioncmdEOF
-        )
         homepage="${{ inputs.homepage }}"
         if [ -z "$homepage" ]; then
           homepage="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
         fi
         echo homepage="$homepage" >> $GITHUB_ENV
+        git_url_arg="--git.url:https://github.com/${{ github.repository }} --git.commit:${{ inputs.branch }}"
+        deploy_dir="${{ inputs.deploy-dir }}"
+        src_dir="${{ inputs.src-dir }}"
+        proj_name="$(echo ${{ inputs.proj-name }} | tr - _)"
+        cmd=$(cat << actioncmdEOF
+        ${{ inputs.nimble-doc-cmd }}
+        actioncmdEOF
+        )
         if [ -z "$cmd" ]; then
-          git_url_arg="--git.url:https://github.com/${{ github.repository }} --git.commit:${{ inputs.branch }}"
-          nimble doc --index:on --project $git_url_arg --outdir:${{ inputs.deploy-dir }} -d:homepage="$homepage" ${{ inputs.src-dir }}/`echo ${{ inputs.proj-name }} | tr - _`
+          nimble doc --index:on --project $git_url_arg --outdir:"${deploy_dir}" -d:homepage="$homepage" "${src_dir}/${proj_name}"
         else
           eval "$cmd"
         fi
 
     - name: Copy to index.html
+      if: ${{ inputs.gen-index == 'true' }}
       shell: bash
       run: |
         cd "${{ inputs.deploy-dir }}"
